@@ -1,0 +1,173 @@
+{% extends 'base_business.html' %}
+
+{% block header %}
+<div class="container-fluid">
+  <h1>{% block title %}{{ place.name }} - Items{% endblock %}</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-sm-6">
+      {% if owner %}
+        <h3>Modify Business Information</h3>
+        <div class="form-group">
+        <form method="post" action="modify/{{ place.id }}">
+          <label for="b_name">Business Name</label>
+          <input name="b_name" id="b_name" value="{{ owner.name }}"  class="form-control" required>
+
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" value="{{ owner.email }}"  class="form-control" required >
+
+          <label for="password">Current Password</label>
+          <input type="password" name="password" id="password"  class="form-control" required>
+
+          <label for="new_pass">New Password</label>
+          <input type="password" name="new_pass" id="new_pass" class="form-control" >
+
+          <label>Location</label>
+          
+
+          <br>
+          <input type="hidden" name="long" id="long" value="{{ owner.longitude }}" hidden>
+          <input type="hidden" name="lat" id="lat" value="{{ owner.latitude }}" hidden>
+          <input type="submit" value="Update">
+        </form>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <button id='locate' type='button' class="btn btn-primary" style="display: block; float: right; margin-top: 10px">Locate Me!</button>
+        <br><br><br>
+      <div id='map' style="height:60%;"></div>
+    </div>
+  </div>
+
+    <div class="row">
+        <div class="col-sm-9">
+        <h3>Modify Opening Hours</h3>
+        <div class="form-group">
+          
+          <form method=post action="hours/create">
+              {% for hour in hours %}
+                {% if hour.day == 0 %}
+                  <div class="hours"><span class="weekday">Mon: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 1 %}
+                  <div class="hours"><span class="weekday">Tue: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 2 %}
+                  <div class="hours"><span class="weekday">Wed: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 3 %}
+                  <div class="hours"><span class="weekday">Thu: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 4 %}
+                  <div class="hours"><span class="weekday">Fri: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 5 %}
+                  <div class="hours"><span class="weekday">Sat: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% elif hour.day == 6 %}
+                  <div class="hours"><span class="weekday">Sun: </span><span class="start">{{hour.start}}</span><span>-</span><span class="end">{{hour.end}}</span><a href="{{ url_for( 'business.hour_delete', hour_id=hour.id )}}"  class="btn btn-secondary  btn-sm" >Remove</a>
+                  </div>
+                {% endif %}
+    
+              {% endfor %}
+            <div class="hours-select clearfix inline-layout up-4" style="width: 65%; margin-top: 30px">
+              <span class="BusinessHours">
+                  <select class="weekday_list" name="day" id="day">
+                    <option value="0">Mon</option>
+                    <option value="1">Tue</option>
+                    <option value="2">Wed</option>
+                    <option value="3">Thu</option>
+                    <option value="4">Fri</option>
+                    <option value="5">Sat</option>
+                    <option value="6">Sun</option>
+                  </select>
+              </span>
+              <span>
+                  <select class="hour_start" name="start" id="start">
+                          <option value="0">12:00 am (midnight)</option>
+                          <option value="1">1:00 am </option>
+                          <option value="2">2:00 am </option>
+                          <option value="3">3:00 am </option>
+                          <option value="4">4:00 am </option>
+                          <option value="5">5:00 am </option>
+                          <option value="6">6:00 am </option>
+                          <option value="7">7:00 am </option>
+                          <option value="8">8:00 am </option>
+                          <option value="9" selected="">9:00 am </option>
+                          <option value="10">10:00 am </option>
+                          <option value="11">11:00 am </option>
+                          <option value="12">12:00 pm (noon)</option>
+                          <option value="13">1:00 pm </option>
+                          <option value="14">2:00 pm </option>
+                          <option value="15">3:00 pm </option>
+                          <option value="16">4:00 pm </option>
+                          <option value="17">5:00 pm </option>
+                          <option value="18">6:00 pm </option>
+                          <option value="19">7:00 pm </option>
+                          <option value="20">8:00 pm </option>
+                          <option value="21">9:00 pm </option>
+                          <option value="22">10:00 pm </option>
+                          <option value="23">11:00 pm </option>
+                  </select>
+              </span>
+              <span>
+                  <select class="hour_end" name="end" id="end">
+                          <option value="1">1:00 am </option>
+                          <option value="2">2:00 am </option>
+                          <option value="3">3:00 am </option>
+                          <option value="4">4:00 am </option>
+                          <option value="5">5:00 am </option>
+                          <option value="6">6:00 am </option>
+                          <option value="7">7:00 am </option>
+                          <option value="8">8:00 am </option>
+                          <option value="9">9:00 am </option>
+                          <option value="10">10:00 am </option>
+                          <option value="11">11:00 am </option>
+                          <option value="12">12:00 pm (noon)</option>
+                          <option value="13">1:00 pm </option>
+                          <option value="14">2:00 pm </option>
+                          <option value="15">3:00 pm </option>
+                          <option value="16">4:00 pm </option>
+                          <option value="17" selected="">5:00 pm </option>
+                          <option value="18">6:00 pm </option>
+                          <option value="19">7:00 pm </option>
+                          <option value="20">8:00 pm </option>
+                          <option value="21">9:00 pm </option>
+                          <option value="22">10:00 pm </option>
+                          <option value="23">11:00 pm </option>
+                          <option value="24">12:00 am (midnight next day)</option>
+                          <option value="25">1:00 am (next day)</option>
+                          <option value="26">2:00 am (next day)</option>
+                          <option value="27">3:00 am (next day)</option>
+                          <option value="28">4:00 am (next day)</option>
+                          <option value="29">5:00 am (next day)</option>
+                          <option value="30">6:00 am (next day)</option>
+                  </select>
+              </span>
+              <span>
+                  <input type="submit" value="Add Hours">
+              </span>
+          </div>
+        </form>
+        </div>
+    </div>
+    </div>
+      {% else %}
+        <h2>Items</h2>
+        {% for item in items %}
+          <p>{{ item.id }} | {{ item.name }} | {{ item.desc }} | {{ item.price }}</p>
+          <img src="{{ '/uploads/item' + item.id|string + '.jpg' }}" height=80 width=80>
+        {% endfor %}
+      {% endif %}
+
+</div>
+{% endblock %}
+
+{% if owner %}
+  {% include 'base_mapbox.html' %}
+{% endif %}

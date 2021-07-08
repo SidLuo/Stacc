@@ -1,0 +1,24 @@
+{% extends 'base_user.html' %}
+
+{% block header %}
+  <h1>{% block title %}User - Register{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div style="width:30%">
+  <form method="post">
+    <label for="name">Name</label>
+    <input name="name" id="name" required>
+
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required> 
+
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    
+    <input type="submit" value="Register">
+
+    <a href="{{ url_for( 'user.guest_create' ) }}"><input type="button" value="Continue as Guest"></a>
+  </form>
+</div>
+{% endblock %}

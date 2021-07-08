@@ -1,0 +1,185 @@
+{% extends 'base_business.html' %}
+
+{% block content %}
+<h1 id="jsonTEST" >Order Management</h1>
+<div class="container-fluid">
+  <h4>Pending Orders</h4>
+
+  <div class="row">
+      
+    {% for order in orders if order.status == 0 %}
+    <div class="col-sm-4 p-0">
+
+    <div class="card card-pad">
+    <div class="card-body p-0">
+      <h4>{{ order.user_.name }} [{{ order.digest }}]</h4>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Time Estimate</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          {% for itm in itmLst[ order.id ] %}
+            {% set item=items[ itm ] %}
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.time_estimate }}</td>
+            </tr>
+          {% endfor %}
+
+          <tr>
+            <td></td>
+            <td><strong>${{ order.total }}</strong></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+        </div>
+        <div class="card-footer order-card">
+          {% if order.comments %}
+            <strong>Comments</strong>: {{ order.comments }}
+          {% endif %}
+            <label for="time">Time Estimate (Seconds):</label><br>
+            <input type="number" name="time" class="form-control" value="{{ order.time_estimate }}" form="form_{{ order.id }}">
+          <form method="GET" id="form_{{ order.id }}" action="orders/accept/{{ order.id }}" class="remove-pad">
+            <div class="btn-group-sm">
+              <input type="submit" class="btn btn-primary btn-sm " value="Accept">
+              <input type="submit" class="btn btn-danger btn-sm" value="Reject">
+            </div>
+          </form>
+
+        </div>
+
+      
+      </div>
+
+      </div>
+    {% endfor %}
+    </div>
+
+</div>
+
+
+<div class="container-fluid">
+
+  <h4>Current Orders</h4>
+  <div class="card-group">
+  {% for order in orders if order.status == 1%}
+    <div class="col-sm-3 p-0">
+      
+    <div class="card card-pad">
+    <div class="card-body p-0">
+      <h4>{{ order.user_.name }} [{{ order.digest }}]</h4>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Time Estimate</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          {% for itm in itmLst[ order.id ] %}
+            {% set item=items[ itm ] %}
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.time_estimate }}</td>
+            </tr>
+          {% endfor %}
+
+          <tr>
+            <td></td>
+            <td><strong>${{ order.total }}</strong></td>
+            <td><strong>{{ order.time_estimate }} seconds</strong></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+      
+    <div class="card-footer">
+      {% if order.comments %}
+      <strong>Comments</strong>: {{ order.comments }}
+      {% endif %}
+
+      {% if order.dist %}
+      User is estimate to be 
+      <div class="dist" data-oid="order.id">{{ order.dist }}</div>
+      seconds away from the store.
+      {% endif %}
+
+      {% if order.id in timeRemain %}
+      <h6>Time Estimation: </h6>
+      {% set pg_width=(timeRemain[ order.id ]/order.time_estimate)*100 %}
+      <!-- Time Remain: {{ timeRemain[ order.id ] }}<br>
+      Time Estimate: {{ order.time_estimate }}<br>
+      Width: {{ pg_width }} -->
+      <div class="progress">
+        <div class="progress-bar progress-bar-animated" role="progressbar" 
+          aria-valuenow="{{ timeRemain[ order.id ] }}" 
+          aria-valuemin="0" 
+          aria-valuemax="{{ order.time_estimate }}"
+          style="width: {{ pg_width }}%;">
+        </div>
+      </div>
+      <br>
+      {% endif %}
+      
+      <a href="orders/complete/{{ order.id }}">
+        <button class="btn btn-primary btn-sm">Complete</button>
+      </a>
+    </div>
+
+    </div>
+
+
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+
+<!-- Countdown Timer client-side -->
+<script>
+  $( '.progress-bar' ).each( function( ) {
+    var me = this;
+    var curVal = parseInt( $( me ).attr( 'aria-valuenow' ), 10 );
+    var maxVal = parseInt( $( me ).attr( 'aria-valuemax' ), 10 );
+    setInterval( function( ) {
+      if( curVal < maxVal ) {
+        curVal += 5;
+        $( me ).css( 'width', (curVal / maxVal)*100 + '%' );
+      }
+    }, 5000 );
+  } );
+  $( '.dist' ).each( function( ) {
+    var me = $( this );
+    var oid = me.data( 'oid' );
+    setInterval( function( ) {
+      var req = new Request( '/business/locate/' + oid );
+      fetch( req ).then( function( res ) { 
+        return res.json( );
+      } ).then( function( res ) { 
+        var dist = res.dist;
+        if( dist == -1 ) {
+          me.val( "unknown" );
+        } else {
+          me.val( res.dist );
+        }
+      } );
+    }, 10000 );
+  } );
+</script>
+<script type=text/javascript src="{{url_for('static', filename='jquery-3.3.1.js') }}"></script>
+{% endblock %}

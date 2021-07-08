@@ -1,0 +1,155 @@
+{% extends 'base_business.html' %}
+
+{% block header %}
+<div class="container-fluid">
+  <h1>{% block title %}{{ place.name }} - Items{% endblock %}</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+
+  <div class="row">
+
+    <div class="col-sm-4">
+        <h3>Add Item</h3>
+        <div class="form-group">
+        <form method=post action="{{ url_for( 'business.item_create')}}" enctype=multipart/form-data>
+          <label for="name">Item Name</label>
+          <input name="name" id="name" class="form-control"  required>
+
+          <label for="desc">Description</label>
+          <input name="desc" id="desc" class="form-control"  required>
+
+          <label for="price">Price</label>
+          <input type="number" name="price" id="price" class="form-control"  value="0.0" step=0.05>
+
+          <label for="time">Estimated Time Required (seconds)</label>
+          <input type="number" name="time" id="time" class="form-control"  value="60">
+
+          <label for="category">Category</label>
+          <select  name="category" id="category">
+          {% for cat in cats %}
+            <option value="{{ cat.id }}">{{cat.name}}</option>
+          {% endfor %}
+          </select>
+
+        
+          <label for"file">Picture</label>
+          <input type=file name=file>
+
+          <input type="submit" value="Add">
+        </form>
+        </div>
+    </div>
+
+    <div class="col-sm-4">
+
+      <h3>Categories</h3>
+      <div class="form-group">
+        <form method=post action="{{ url_for( 'business.category_create')}}" enctype=multipart/form-data>
+          <label for="name">Category Name</label>
+          <input name="name" id="name" class="form-control"  required>
+          <input type="submit" value="Add">
+        </form>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <b> Existing Categories </b>
+      {% for cat in cats %}
+      <h5> <span style="margin-top: 5px; padding-top: 5px; display: block">{{ cat.name }}<span> <a href="{{ url_for( 'business.category_delete', cat_id=cat.id )}}"  class="btn btn-primary  btn-sm" style="background: #f00; border: none; display: block; float: right">DELETE</a></h5>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="row">
+
+  </div>
+  
+  <div class="row">
+        <h3>Items</h3>
+  </div>
+
+  <div class="accordion" id="accordian">
+  {% for item in items %}
+  <div class="card">
+    <div class="card-header" id="heading{{item.id}}">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse{{item.id}}" aria-expanded="false" aria-controls="collapse{{item.id}}">
+          {{item.name}} - ID {{item.id}}
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapse{{item.id}}" class="collapse" aria-labelledby="heading{{item.id}}" data-parent="#accordian">
+      <div class="card-body">
+
+          
+          <form method=post action="{{ url_for( 'business.item_modify', i_id=item.id ) }}" enctype=multipart/form-data>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="name">Item Name</label>
+              <input name="name" id="name" value="{{ item.name }}" class="form-control"  required>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="price">Price</label>
+              <input type="number" name="price" id="price" value="{{ item.price }}" step=0.05 class="form-control"  >
+            </div>
+            <div class="form-group col-md-3">
+              <label for="time">Estimated Time Required (seconds)</label>
+              <input type="number" name="time" id="time" value="{{ item.time_estimate }}"class="form-control"  >
+              </div>
+            <div class="form-group col-md-3">
+              <label for="category">Category</label>
+              <select name="category" id="category">
+              {% for cat in cats %}
+                {% if cat.id == item.category %}
+                <option value="{{ cat.id }}"selected >{{cat.name}}</option>
+                {% else %}
+                <option value="{{ cat.id }}" >{{cat.name}}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="desc">Description</label>
+            <input name="desc" id="desc" value="{{ item.desc }}" class="form-control"  required>
+
+            
+            
+          </div>
+
+            <div class="form-check">
+              {% if item.visibility %}
+              <input class="form-check-input" type="checkbox" value="" id="visible" name="visible" checked>
+              {% else %}
+              <input class="form-check-input" type="checkbox" value="" id="visible" name="visible">
+              {% endif %}
+              <label class="form-check-label" for="visible">Visiblity (to users)</label>
+            </div>
+
+            <label for"file">Replace Picture</label>
+            <img src="{{ '/uploads/item' + item.id|string + '.jpg' }}" height=80 width=80>
+            <input type=file name=file >
+
+            <input type="submit" class="btn btn-primary" value="Save" >
+          </form>
+          <div class="form-group">
+          <a href="{{ url_for( 'business.item_delete', item_id=item.id )}}"  class="btn btn-primary" >DELETE</a>
+          </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% if owner %}
+  {% include 'base_mapbox.html' %}
+{% endif %}

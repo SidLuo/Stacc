@@ -1,0 +1,49 @@
+{% extends 'base_business.html' %}
+
+{% block content %}
+<div class="container fluid">
+
+  <h3>Search Results</h3>
+  {% if orders != None %}
+
+    <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">ID - digest</th>
+        <th scope="col">Name</th>
+        <th scope="col">Order Items</th>
+        <th scope="col">Total Cost</th>
+        <th scope="col">Date</th>
+        <th scope="col">Order Status</th>
+      </tr>
+    </thead>
+    {% for ord in orders %}
+    <tr>
+        <th scope="row">{{ord.id}} - {{ord.digest}}</th>
+        <td>{{ord.user_.name}} - ID:{{ord.user}}</td>
+        <td>
+
+        {% for i_id in ord.order_details.split( ',' ) %}
+          {{ item_dict[i_id].name }} <br>
+        {% endfor %}
+
+        </td>
+        <td>{{ord.total}}</td>
+        <td>{{ord.time_created}}</td>
+        <td>{{ord.status}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
+  {% else %}
+
+    No valid search results.
+
+  {% endif %}
+
+
+
+</div>
+
+{% endblock %}

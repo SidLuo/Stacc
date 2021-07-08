@@ -1,0 +1,17 @@
+{% extends 'base_business.html' %}
+
+{% block header %}
+  <h1>{% block title %}Business - Log In{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div style="width:30%">
+  <form method="post">
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <input type="submit" value="Log In">
+  </form>
+</div>
+{% endblock %}

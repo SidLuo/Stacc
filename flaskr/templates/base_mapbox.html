@@ -1,0 +1,60 @@
+<script>
+document.addEventListener( 'DOMContentLoaded', function( ) {
+    var center_ = [151.209900,-33.8688];
+    lngField = $( '#long' );
+    latField = $( '#lat' );
+    // change centering of map if long/lat field exists :)
+    if( $( lngField ).val( ) ) {
+        center_ = [ lngField.val( ), latField.val( ) ];
+    }
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZmZmeDAiLCJhIjoiY2psbGtsa21nMHlneDNwcW4wbzg3bDd5eiJ9.Q3ZS5kabj_xO1KVifuuQJQ';
+
+    var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: center_, // starting position
+        zoom: 10 // starting zoom
+    });
+
+    var marker = new mapboxgl.Marker({
+        draggable: true
+    })
+    .setLngLat( center_ )
+    .addTo(map);
+
+    // Add geolocate control to the map.
+    var geolocate = new mapboxgl.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: true
+        },
+        fitBoundsOptions: {
+            maxZoom: 15
+        },
+        trackUserLocation: false,
+        showUserLocation: false
+    } ).on( 'geolocate', function( e ) {
+        marker.setLngLat( [ e.coords.longitude, e.coords.latitude ] );
+    } );
+    map.addControl( geolocate );
+
+    map.resize( );
+
+    if( lngField ) {
+        geolocate.on( 'geolocate', function( e ) {
+
+        $( lngField ).val( e.coords.longitude );
+        $( latField ).val( e.coords.latitude );
+        } );
+
+        marker.on( 'dragend', function( e ) {
+            $( lngField ).val( e.target._lngLat.lng );
+            $( latField ).val( e.target._lngLat.lat );
+        } );
+    }
+
+    $( '#locate' ).on( 'click', function( ) {
+        geolocate.trigger( );
+    } );
+} );
+</script>

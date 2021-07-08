@@ -1,0 +1,60 @@
+{% extends 'base_business.html' %}
+
+
+{% block header %}
+<div class="container-fluid">
+  <h2>{% block title %}Register{% endblock %}</h2>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+<form method="post">
+<div class="row">
+
+  <div class="col-sm-4">
+
+      <div class="form-group">
+      <label for="b_name">Business Name</label>
+      <input name="b_name"  id="b_name"  class="form-control" required>
+
+      
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" class="form-control" required>
+
+
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password"  class="form-control" required>
+      
+
+      <input type="hidden" name="long" id="long" value=151.209900 hidden>
+      <input type="hidden" name="lat" id="lat" value=-33.8688 hidden>
+
+
+      </div>
+      <input type="submit"  value="Register">
+    
+  </div>
+
+  <div class="col-sm-8">
+    <div class="form-group" style="width:100%">
+        <div style="display: block; float: left">
+          <label class="location">Location</label>
+          <small class="form-text text-muted">Use the button to find your location, or drag the marker on the map below.</small>
+        </div>
+        <div style="display: block; float: right">
+          <button id='locate' type='button' class="btn btn-primary">Locate Me!</button>
+        </div>
+        <br> <br> <br>
+      <div id='map' style="height:60%;" ></div>
+    </div>
+  </div>
+
+</div>
+</form>
+</div>
+
+{% endblock %}
+
+{% include 'base_mapbox.html' %}

@@ -1,0 +1,276 @@
+{% extends 'base_user.html' %}
+
+{% block header %}
+  <h1>{% block title %}Restaurant: {{ business.name }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+
+    <h3>Business Information</h3>
+    <div style="display: flex; flex-direction: row">
+    <div class="container">
+      <div class="column">
+        <div class="col-sm-12 col-md-6">
+          <h4>Ratings</h4>
+          <ul class="list-group">
+            <li class="list-group-item">
+              {% if rating or user_rating %}
+                {% set rate=rating|int %}
+                <span class="badge badge-pill badge-primary">User Rating</span>
+                {% for i in range( 1, rate + 1 ) %}
+                  <a href="{{ url_for( 'user.rate', b_id=business.id, user_rating=i ) }}"><i class="fas fa-star rating"></i></a>
+                {% endfor %}  
+                {% for i in range( rate + 1, 5 + 1 ) %}
+                  <a href="{{ url_for( 'user.rate', b_id=business.id, user_rating=i ) }}"><i class="far fa-star rating"></i></a>
+                {% endfor %}
+                <span class="badge badge-secondary">{{ rate|float }}/5.0</span>
+        
+                {% if user_rating %}
+                {% set rate=user_rating|int %}
+                  <br>
+                  <span class="badge badge-pill badge-light">Your Rating</span>
+                  {% for i in range( 1, rate + 1 ) %}
+                    <a href="{{ url_for( 'user.rate', b_id=business.id, user_rating=i ) }}"><i class="fas fa-star rating"></i></a>
+                  {% endfor %}  
+                  {% for i in range( rate + 1, 5 + 1 ) %}
+                    <a href="{{ url_for( 'user.rate', b_id=business.id, user_rating=i ) }}"><i class="far fa-star rating"></i></a>
+                  {% endfor %}
+                  <span class="badge badge-secondary">{{ rate|float }}/5.0</span>
+                {% endif %}
+              {% else %}
+                <span class="badge badge-pill badge-primary">Rate</span>
+                {% for i in range( 1, 5 + 1 ) %}
+                  <a href="{{ url_for( 'user.rate', b_id=business.id, user_rating=i ) }}"><i class="far fa-star rating"></i></a>
+                {% endfor %}  
+              {% endif %}
+            </li>
+
+            <li class="list-group-item">
+              {% if business.time_rating %}
+                <span class="badge badge-pill badge-primary">Timeliness Rating</span>
+                {% set rating=business.time_rating|int %}
+                {% for i in range( 1, rating + 1 ) %}
+                  <i class="fas fa-star rating"></i>
+                {% endfor %}  
+                {% for i in range( rating + 1, 5 + 1 ) %}
+                  <i class="far fa-star rating"></i>
+                {% endfor %}
+                <span class="badge badge-secondary">{{ business.time_rating|float }}/5.0</span>
+                <br>
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+        <br>
+        <div class="col-sm-12 col-md-6">
+          <h4>Opening Hours</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Day</th>
+                <th scope="col">Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set day_str={
+                0: 'Monday',
+                1: 'Tuesday',
+                2: 'Wednesday',
+                3: 'Thursday',
+                4: 'Friday',
+                5: 'Saturday',
+                6: 'Sunday'
+              }
+              %}
+              {% for hour in hours %}
+              <tr>
+                <td>{{ day_str[ hour.day ] }}</td>
+                <td>{{ hour.start }} - {{ hour.end }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="width: 60%">
+      <div class="column">
+        <a class="btn btn-primary toggle-map" href="#map" role="button" style="display: block; float: right"> Toggle Map </a>
+        <div id="map" style="width: 180%; height: 80%; position:relative; right:80%;"></div>
+      </div>
+    </div>
+    </div>
+
+    {% if disc %}
+    <h3>Discount Codes</h3>
+    <div class="container">
+      <div class="row">
+        {% for d in disc if d.visibility %}
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Code: {{ d.code }}</h5>
+                <strong>Targeting</strong>:
+                {% if d.ttype == 1 %}
+                  All Items
+                {% else %}
+                  {% if d.ttype == 2 %}
+                    Category
+                  {% elif d.ttype == 3 %}
+                    User
+                  {% endif %}
+                  - {{ d.target }}
+                {% endif %}
+                <br>
+                <strong>Discount</strong>: 
+                {% if d.dtype == 0 %}
+                  Percentage - {{ d.value }}%
+                {% else %}
+                  Flat - ${{ d.value }}
+                {% endif %}
+                <form method="POST" action="{{ url_for( 'user.add_discount' ) }}" >
+                  <input type="hidden" name="b_id" value="{{ business.id }}">
+                  <input type="hidden" name="code" value="{{ d.code }}">
+                  <input type="submit" class="btn btn-primary" role="button" value="Add">
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="row">
+        <form method="POST" action="{{ url_for( 'user.add_discount' ) }}">
+          <label for="code">Enter Code</label>
+          <input type="hidden" name="b_id" value="{{ business.id }}">
+          <input type="text" name="code" class="form-control">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if u_disc %}
+    <h4>Applied Discount Code</h4>
+    <div class="container">
+      <div class="row">
+        {% for disc in u_disc %}
+          {% set d=disc.discount %}
+          <div class="col-12 col-sm-6 col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Code: {{ d.code }}</h5>
+                <strong>Discount</strong>: 
+                {% if d.dtype == 0 %}
+                  Percentage - {{ d.value }}%
+                {% else %}
+                  Flat - ${{ d.value }}
+                {% endif %}
+                <br>
+                <a href="{{ url_for( 'user.remove_discount', ud_id=disc.id ) }}" class="btn btn-danger" role="button">Remove</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <hr>
+
+    <h3>Products</h3>
+    {% for cat in catDict.keys() %}
+    
+    <h5>Category: {{cat}}</h5>
+
+    <div class="row">
+    {% for item in catDict[cat] if item.visibility %}
+      <div class="col-sm-3 d-flex align-items-stretch m-b-10">
+        <div class="card">
+          <img  class="card-img-top imagefix"  src="{{ '/uploads/item' + item.id|string + '.jpg' }}" height=120 >
+          <div class="card-body">
+
+            <h5 class="card-title">{{ item.name }} - ${{ item.price }} </h5> 
+            <p class="card-text">{{ item.desc }} <br> <small> Estimated Time for Item: {{ item.time_estimate }} seconds </small></p>
+          </div>
+            <form method="post" action="/user/addOrdr" class="remove-pad">
+              <input type="hidden" name="item" id="item" value={{item.id}} hidden>
+              <input type="hidden" name="business" id="business" value={{business.id}} hidden>
+          <div class="card-footer bg-transparent">
+              <div class="input-group input-group-sm mb-3 remove-bottom-margin">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="inputGroup-sizing-sm">quantity</span>
+                </div>
+                <input  class="form-control"  type="number" id="quantity" name="quantity" value="1" step="1" min = "1" max = "100" required>
+                <input  type="submit" class="btn remove-bottom-margin" value="Add">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      </div>
+    {% endfor %}
+
+    <hr>
+
+    <div class="row">
+      {% if business.id in orders %}
+      <h4>Your Order</h4>
+      <div class="col-sm-12">
+        <table class="table table-responsive">
+          <thead>
+            <th scope="col">Product Name</th>
+            <th scope="col">Product Description</th>
+            <th scope="col">Product Quantity</th>
+            <th scope="col">Product Cost (per item)</th>
+            <th scope="col">Remove</th>
+          </thead>
+          <tbody>
+            {% for o in orders[ business.id ] %}
+              {% set order=o %}
+              {% set item=order.item %}
+
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.desc }}</td>
+              <td>{{ order.qty }}</td>
+              <td>{{ item.price }}</td>
+              <td>
+                <a href="{{ url_for( 'user.order_remove', o_id=order.id ) }}">
+                  <span class="badge badge-pill badge-danger">X</span>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <th>Total: {{ total_cost }}</th>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <a href="{{ url_for( 'user.order_delete', b_id=business.id ) }}" class="btn btn-danger" role="button">Delete Order</a>
+        <a href="{{ url_for( 'user.order_finalise', b_id=business.id ) }}" class="btn btn-primary" role="button">Confirm Order</a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+  </div>
+
+  
+<script>
+var map = $( '#map' );
+$( '.toggle-map' ).on( 'click', function( ) {
+  map.toggle( );
+} );
+</script>
+{% endblock %}
+
+{% include 'base_map_menu.html' %}

@@ -1,0 +1,55 @@
+{% extends 'base_user.html' %}
+{% include 'base_map.html' %}
+
+{% block header %}
+  <h1>{% block title %}User - View Businesses{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-4">
+    {% for business in businesses %}
+      <a href="{{ url_for( 'user.view_menu', b_id=business.id ) }}"><h3 id="bus-{{business.id}}">{{ business.name }}</h3></a>
+      <!--
+      <h3>Items</h3>
+      {% for item in business.items %}
+        <p>[{{item.id}}]{{ item.name }} | {{ item.desc }} | {{ item.price }}</p>
+        <img src="{{ '/uploads/item' + item.id|string + '.jpg' }}" height=80 width=80>
+        <a href="{{ url_for( 'user.order_add', b_id=business.id, i_id=item.id ) }}">Add to Order</a>
+      {% endfor %}
+      {% if business.id in orders %}
+      <h3>Your Order</h3>
+      {% endif %}
+      {% for o in orders[ business.id ] %}
+        {% set order=o %}
+        {% set item=order.item %}
+        <p>[{{item.id}}]{{ item.name }} | {{ item.desc }} | {{ item.price }}</p>
+        <img src="{{ '/uploads/item' + item.id|string + '.jpg' }}" height=80 width=80>
+        <a href="{{ url_for( 'user.order_remove', o_id=order.id ) }}">Remove from Order</a>
+      {% endfor %}
+      {% if business.id in orders %}
+      <p><a href="{{ url_for( 'user.order_delete', b_id=business.id ) }}">Delete Order</a></p>
+      {% endif %}
+      -->
+    {% endfor %}
+    {% for business in closed %}
+      <h4 id="closed" style="color: grey;">{{ business.name }} is currently closed</h4>
+    {% endfor %}
+    </div>
+
+    <div class="col-sm-8">
+      <div id='map' style="position:absolute; top:0; bottom:0; width:100%;" ></div>
+      <div id='geocoder', class='geocoder'></div>
+    </div>
+
+  </div>
+  </div>
+
+  
+  <!--
+    Orders:
+
+    {{ orders }}
+  -->
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base_user.html' %}
+
+{% block content %}
+<div class="container fluid">
+  <h2>Share Location</h2>
+  <input type="checkbox" name="share-loc" id="share-loc">
+  <label for="share-loc">By sharing your location with Stacc, your order will be prioritised</label>
+
+  <div class="card-group">
+  {% for order in orders %}
+    <div class="col-sm-4">
+      <div class="card order-info" 
+        data-status="{{ order.status }}" data-oid="{{ order.id }}" 
+        data-lng="{{ order.business_.longitude }}" data-lat="{{ order.business_.latitude }}">
+        <div class="card-header">
+          <h5 class="card-title">Order {{ order.id }} - <div class="spoiler">[{{ order.digest }}]</div></h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ order.business_.name }}</h6>
+          {% if order.status == 0 %}
+            <span class="badge badge-secondary">Pending</span>
+          {% elif order.status == 1 %}
+            <span class="badge badge-primary">Accepted</span>
+          {% else %}
+            <span class="badge badge-success">Completed</span>
+          {% endif %}
+          <br>
+          <span class="" data-toggle="tooltip" title="{{ order.time_created }}">
+            Created: {{ order.time_created|string|truncate( 20 ) }}
+          </span>
+        </div>
+        <div class="card-body">
+          {% if order.status == 0 %}
+            <p>Your order has been sent to the business and is awaiting acknowledgement.</p>
+          {% elif order.status == 1 %}
+            <p>Your order has been accepted.</p>
+          {% else %}
+            <p>Your order is now complete and ready to be picked up.</p>
+          {% endif %}
+          <ul class="card-text list-group">
+          {% for itm in itmLst[ order.id ] %}
+            <li class="list-group-item">{{ itm }}</li>
+          {% endfor %}
+          </ul>
+
+          {% if order.comments %}
+          <strong>Comments</strong>: {{ order.comments }}
+          {% endif %}
+          <br>
+          {% if order.id in timeRemain %}
+          <h6>Time Estimation: </h6>
+          {% set pg_width=(timeRemain[ order.id ]/order.time_estimate)*100 %}
+          <!-- Time Remain: {{ timeRemain[ order.id ] }}<br>
+          Time Estimate: {{ order.time_estimate }}<br>
+          Width: {{ pg_width }} -->
+            <div class="progress">
+              <div class="progress-bar progress-bar-animated" role="progressbar" 
+                aria-valuenow="{{ timeRemain[ order.id ] }}" 
+                aria-valuemin="0" 
+                aria-valuemax="{{ order.time_estimate }}"
+                style="width: {{ pg_width }}%;">
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+<!-- Countdown Timer client-side -->
+<script>
+$( '.progress-bar' ).each( function( ) {
+  var me = this;
+  var curVal = parseInt( $( me ).attr( 'aria-valuenow' ), 10 );
+  var maxVal = parseInt( $( me ).attr( 'aria-valuemax' ), 10 );
+  setInterval( function( ) {
+    if( curVal < maxVal ) {
+      curVal += 5;
+      $( me ).css( 'width', (curVal / maxVal)*100 + '%' );
+    }
+  }, 5000 );
+} );
+
+var share_check = $( '#share-loc' );
+var access_key = "pk.eyJ1IjoiZmZmeDAiLCJhIjoiY2psbGtsa21nMHlneDNwcW4wbzg3bDd5eiJ9.Q3ZS5kabj_xO1KVifuuQJQ";
+var mapbox_base = "https://api.mapbox.com/directions-matrix/v1/mapbox/walking/";
+
+share_check.on( 'click', function( ) {
+  console.log( 'clickkk' );
+  if( share_check.is( ':checked' ) ) {
+    share_loc( );
+  }
+} );
+
+function share_loc( ) {
+  if( share_check.is( ':checked' ) ) {
+    $( '.order-info' ).each( function( ) {
+      var data = $( this ).data( );
+      if( data.status != 1 )
+        return;
+      var oid = data.oid;
+      console.log( oid );
+      navigator.geolocation.watchPosition( function( pos ) {
+        // var req = new Request( mapbox_base )
+        var lat = pos.coords.latitude;
+        var lng = pos.coords.longitude;
+        var url = mapbox_base + data.lng + ',' + data.lat + ';' + lng + ',' + lat + '?access_token=' + access_key;
+        var req = new Request( url );
+        
+        fetch( req ).then( function( resp ) {
+          return resp.json( );
+        } ).then( function( res ) {
+          var dist = res.durations[ 0 ][ 1 ];
+          var share_req = new Request( 'share/' + oid + '/' + dist );           
+          fetch( share_req ).then( function( r ) {
+            if( r.status != 200 ) {
+              console.log( "sharing loc failed :(" );
+            }
+          } );
+        } );
+
+      }, function( err ) {
+        console.log( err );
+      }, {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 30000
+      } );
+    } );
+  }
+}
+</script>
+{% endblock %}

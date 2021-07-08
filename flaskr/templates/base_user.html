@@ -1,0 +1,109 @@
+<!doctype html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %} - Stacc</title>
+
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.48.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.48.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</head>
+
+  <nav class="navbar nav-bar navbar-expand-lg navbar-dark bg-dark">
+  <a id="logo-container" href="/" class="brand-logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Stacc logo" style="width: 45px; margin: 5px; margin-right: 20px"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+  </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+        {% if g.user %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.home') }}">Home <span class="sr-only">(current)</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.view_orders') }}">Current Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.logout') }}">Logout</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.register') }}">Register</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.login') }}">Login</a></li>
+        {% endif %}
+        </ul>
+      </div>
+    </nav>
+  <div id="source-button" class="btn btn-primary btn-xs" style="display: none;">&lt; &gt;</div>
+
+<div class="container">    
+
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+    {% if message %}
+        <div class="flash">{{ message }}</div>
+    {% endif %}
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
+  
+</div>
+
+<!-- ajax notifications -->
+{% if g.user %}
+<script>
+console.log( "Ye??" );
+var req = new Request( '/user/notifications' );
+if( Notification.permission !== "denied" ) {
+  Notification.requestPermission( function( perm ) {
+    // if( perm == "granted" ) {
+      // new Notification( "Notifications enabled!" );
+    // }
+  } ); 
+}
+
+setInterval( function( ) {
+  if( "Notification" in window && Notification.permission === "granted" ) {
+    console.log( "Fetching notifications." );
+    fetch( req ).then( function( resp ) {
+      return resp.json( );
+    } ).then( function( resp ) {
+      for( var n of resp ) {
+        var options = {
+          body: n.msg
+        };
+
+        const note = new Notification( `Message from ${n.sender}`, options );
+        note.onclick = function( ev ) {
+          console.log( 'Notification clicked!' );
+          var req_ack = new Request( '/user/notifications/remove/' + n.id );
+          fetch( req_ack ).then( function( ) {
+            if (document.getElementById("jsonTEST").innerHTML === "Order Management") {
+              location.reload();
+            } else {
+              window.location.href = "http://127.0.0.1:5000/user/orders";
+            }
+          } );
+        }
+        note.onclose = function( ev ) {
+          console.log( 'Notification clicked!' );
+          var req_ack = new Request( '/user/notifications/remove/' + n.id );
+          fetch( req_ack ).then( function( ) {
+            if (document.getElementById("jsonTEST").innerHTML === "Order Management") {
+              location.reload();
+            } else {
+              window.location.href = "http://127.0.0.1:5000/user/orders";
+            }
+          } );
+        }
+      }
+    } );
+  }
+}, 15000 );
+</script>
+{% endif %}

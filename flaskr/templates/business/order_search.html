@@ -1,0 +1,110 @@
+{% extends 'base_business.html' %}
+
+{% block content %}
+<div class="container fluid">
+  <h2>Order Search </h2>
+  Search for orders based on one of the criteria below.
+
+    <form method=post action="{{ url_for( 'business.order_search_results')}}" enctype=multipart/form-data >
+      <div class="form-row">
+        <div class="col">
+          <label for="name">Customer Name</label>
+          <input name="name" id="name" class="form-control">
+        </div>
+        <div class="col">
+          <label for="date">Specific Date</label>
+          <input name="date" id="date" class="form-control"  placeholder="YYYY-MM-DD">
+        </div>
+        <div class="col">
+          <label for="cost">Specific Cost</label>
+          <div class="input-group mb-2 mr-sm-2">
+            <div class="input-group-prepend">
+            <div class="input-group-text">$</div>
+            </div>
+            <input type="cost" name="cost" id="cost" class="form-control" >
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="col">
+          <label for="item">Specific Item</label>
+          <select  name="item" id="item">
+            <option value="{{ All }}">All</option>
+          {% for it in items %}
+            <option value="{{ it.id }}">{{it.name}}</option>
+          {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label for="orderby">Orderby</label>
+          <select  name="orderby" id="orderby">
+            <option value="date" selected>Date</option>
+            <option value="cost">Cost</option>
+          </select>
+        </div>
+        <div class="col">
+          <input type="submit" value="Search">
+        </div>
+
+      </div>
+    </form>
+
+  <h3>All Orders - page {{page}}</h3>
+  <table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">ID - digest</th>
+      <th scope="col">Name</th>
+      <th scope="col">Order Items</th>
+      <th scope="col">Total Cost</th>
+      <th scope="col">Date</th>
+      <th scope="col">Order Status</th>
+    </tr>
+  </thead>
+  {% for ord in orders %}
+  <tr>
+      <th scope="row">{{ord.id}} - {{ord.digest}}</th>
+      <td>{{ord.user_.name}} - ID:{{ord.user}}</td>
+      <td>
+
+      {% for i_id in ord.order_details.split( ',' ) %}
+        {{ item_dict[i_id].name }} <br>
+      {% endfor %}
+
+      </td>
+      <td>{{ord.total}}</td>
+      <td>{{ord.time_created}}</td>
+      <td>{{ord.status}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+
+  <div class="col-sm-12">
+  <nav aria-label="Page navigation example">
+  <ul class="pagination  pagination-sm justify-content-center pg-dark">
+    {% if page == 1%}
+      <li class="page-item disabled"> <a class="page-link" href=" {{ url_for( 'business.order_search', page=page-1 ) }}" tabindex="-1">Previous</a> </li>
+      <li class="page-item active"><a class="page-link" href="">{{page}}</a></li>
+    {% else %}
+      <li class="page-item"> <a class="page-link" href=" {{ url_for( 'business.order_search', page=page-1 ) }}" tabindex="-1">Previous</a> </li>
+      <li class="page-item active"><a class="page-link" href="">{{page}}</a></li>
+    {% endif %}
+
+    {% if page*per_page >= max_size %}
+      <li class="page-item disabled"> <a class="page-link" href=" {{ url_for( 'business.order_search', page=page+1 ) }} ">Next</a> </li>
+    {% else %}
+      <li class="page-item"> <a class="page-link" href=" {{ url_for( 'business.order_search', page=page+1 ) }}">Next</a> </li>
+    {% endif %}
+
+
+    
+  </ul>
+  </nav>
+  </div>
+
+
+</div>
+</div>
+
+{% endblock %}

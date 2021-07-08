@@ -1,0 +1,119 @@
+{% extends 'base_business.html' %}
+
+{% block content %}
+<div class="container fluid">
+  <h2>Create Discounts</h2>
+  <form method="POST" action="{{ url_for( 'business.add_discount') }}">
+    <div class="form-row">
+      <div class="col-auto">
+        <label for="code">Code</label>
+        <input type="text" name="code" class="form-control" id="code" placeholder="FREE18" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-auto">
+        <div class="form-group">
+          <label for="dtype">Discount Type</label>
+          <select class="form-control" name="dtype" id="dtype" required>
+            <option value="0">Percentage</option>
+            <option value="1">Flat</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="form-group">
+          <label for="value">Value</label>
+          <input type="number" name="value" id="value" class="form-control"  value="0.0" step=0.05 required>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-auto">
+        <div class="form-group">
+            <label for="uses">Maximum Total Use</label>
+            <input type="number" name="uses" id="uses" class="form-control" value="1" required>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="form-group">
+            <label for="single_uses">Maximum Use by Individual</label>
+            <input type="number" name="single_uses" id="single_uses" class="form-control" value="1" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-auto">
+        <div class="form-group">
+          <label for="ttype">Discount Target</label>
+          <select class="form-control" name="ttype" id="ttype">
+            <option value="0">All Items</option>
+            <option value="1">Particular Category (category name)</option>
+            <option value="2">Particular User (user email)</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="form-group">
+          <label for="target">Target (category name/user email)</label>
+          <input name="target" id="target" class="form-control">
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="col-auto">
+        <div class="form-check">
+          <input class="form-check-input" name="visible" type="checkbox" value="" id="visible">
+          <label class="form-check-label" for="visible">Visible (if code is visible to users)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <input type="submit" value="Add"/>
+    </div>
+  </form>
+
+  {% if discounts %}
+  <h2>Current Discounts</h2>
+  <div class="container">
+    <div class="row">
+      {% for d in discounts %}
+        <div class="col-12 col-sm-6 col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Code: {{ d.code }}</h5>
+              <strong>Targeting</strong>:
+              {% if d.ttype == 1 %}
+                All Items
+              {% else %}
+                {% if d.ttype == 2 %}
+                  Category
+                {% elif d.ttype == 3 %}
+                  User
+                {% endif %}
+                - {{ d.target }}
+              {% endif %}
+              <br>
+              <strong>Discount</strong>: 
+              {% if d.dtype == 0 %}
+                Percentage - {{ d.value }}%
+              {% else %}
+                Flat - ${{ d.value }}
+              {% endif %}
+              <br>
+              {% if d.visibility %}
+                <b>Visible to Users</b>
+              {% endif %}
+              <br>
+              <a href="{{ url_for( 'business.discount_delete', d_id=d.id ) }}" class="btn btn-danger" role="button">Delete</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

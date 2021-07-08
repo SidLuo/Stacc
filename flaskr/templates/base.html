@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Stacc</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='materialize.min.css') }}"  media="screen,projection"/>
+    <link href="{{ url_for('static', filename='homestyle.css') }}" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <nav class="orange darken-2 z-depth-3" role="navigation">
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="/" class="brand-logo"><img src="{{ url_for('static', filename='logo.png') }}" alt="Stacc logo" class="stacc-logo"></a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="{{ url_for('user.register') }}" class="white-text">Customer Register</a></li>
+        <li><a href="{{ url_for('user.login') }}" class="white-text">Customer Login</a></li>
+        <li><a href="{{ url_for('business.register') }}" class="white-text">Business Register</a></li>
+        <li><a href="{{ url_for('business.login') }}" class="white-text">Business Login</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="sidenav orange darken-3 mobnav">
+        <li><a href="{{ url_for('user.register') }}" class="white-text">Customer Register</a></li>
+        <li><a href="{{ url_for('user.login') }}" class="white-text">Customer Login</a></li>
+        <li><a href="{{ url_for('business.register') }}" class="white-text">Business Register</a></li>
+        <li><a href="{{ url_for('business.login') }}" class="white-text">Business Login</a></li>
+      </ul>
+      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+
+  <div id="index-banner" class="parallax-container">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <br><br>
+        <h1 class="header center white-text text-darken-2 shadow">STACC</h1>
+        <div class="row center">
+          <h5 class="header col s12 shadow">Skip the queue - use Stacc</h5>
+        </div>
+        <div class="row center">
+          <a href="{{ url_for('user.register') }}" id="download-button" class="btn-large waves-effect waves-light orange darken-2">Get Started as Customer</a>
+          <a href="{{ url_for('business.register') }}" id="download-button" class="btn-large waves-effect waves-light orange darken-2">Get Started as Business Owner</a>
+        </div>
+        <br><br>
+
+      </div>
+    </div>
+    <div class="parallax"><img src="../static/background1.jpg" alt="Unsplashed background img 1" width="1440"></div>
+  </div>
+
+
+  <div class="container">
+    <div class="section">
+
+      <!--   Icon Section   -->
+      <div class="row">
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">flash_on</i></h2>
+            <h5 class="center">No need to wait</h5>
+
+            <p class="light">Tired of waiting for your orders? Always running late? With Stacc, you can find nearby cafes and restaurants, order in advance, and then simply walk up and collect your order.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">attach_money</i></h2>
+            <h5 class="center">Cashless payments</h5>
+
+            <p class="light">With integrated secure payment methods, Stacc can take you one step closer to a completely cashless lifestyle. Next time, you won't need to grab your wallet for a cup of coffee.</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">card_giftcard</i></h2>
+            <h5 class="center">Hassle free</h5>
+
+            <p class="light">Stacc requires no setup, it's completely plug and play. Simply start the application and you can find restaurants and make orders straight away, no registration needed.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="parallax-container valign-wrapper">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <div class="row center">
+          <h4 class="header col s12 shadow">A realtime responsive ordering system</h4>
+        </div>
+      </div>
+    </div>
+    <div class="parallax"><img src="../static/background2.jpg" alt="Unsplashed background img 2" width="1440"></div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+
+      <div class="row">
+        <div class="col s12 center">
+          <h3><i class="mdi-content-send brown-text"></i></h3>
+          <h4>Own a Restaurant?</h4>
+          <p class="center-align light">Become a partner to gain access an ever-growing audience of engaged diners. Join us and start growing your business today!</p>
+          <ul>
+                <li>Free to join</li>
+                <li>No fees</li>
+                <li>No contracts</li>
+                <li>More customers</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="parallax-container valign-wrapper">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <div class="row center">
+          <h4 class="header col s12 shadow">Sign up now and get 20% off your first order!</h4>
+          <h6 class="header col s12 light shadow">Terms and conditions apply.</h6>
+        </div>
+      </div>
+    </div>
+    <div class="parallax"><img src="../static/background3.jpg" alt="Unsplashed background img 3" width="1440"></div>
+  </div>
+
+  <footer class="page-footer orange darken-2">
+    <div class="container" style="padding-bottom: 15px; text-align: right">
+      Software Project for COMP4920
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="../static/js/materialize.js"></script>
+  <script src="../static/js/init.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+{% extends 'base_user.html' %}
+
+{% block header %}
+  <h1>{% block title %}Pay for your Order{% endblock %}</h1>
+  <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+{% endblock %}
+
+{% block content %}
+  <script>
+  function pay( ) {
+    var req = new Request( "{{ url_for( 'user.order_payment', b_id=business.id, ) }}" );
+
+    fetch( req, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: JSON.stringify( { 
+        comments: $( '#comments' ).val( ) 
+      } ),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    } ).then( function( data ) {
+      if( data.status == 200 )
+        window.location.replace( "{{ url_for( 'user.view_orders' ) }}" );
+      alert( "Something has died. Check your browser console." );
+      console.log( data );
+    } );
+  }
+  </script>
+  
+  <div class="container-fluid">
+
+  <h2 id="bus-{{business.id}}">Restaurant: {{ business.name }}</h2>
+  {% if orders|length == 0 %}
+    <a href="{{ url_for( 'user.view_menu', b_id=business.id ) }}" class="btn btn-primary" role="button">Go Back to Menu</a>
+  {% elif total_cost == 0 %}
+    <button onclick="pay()" class="btn btn-primary" role="button">Pay</button>
+  {% else %}
+    <h3>Your Order</h3>
+    <div class="col-sm-12">
+      <table class="table table-responsive">
+        <thead>
+          <th scope="col">Product Name</th>
+          <th scope="col">Product Description</th>
+          <th scope="col">Product Quantity</th>
+          <th scope="col">Product Cost (per item)</th>
+          <th scope="col">Product Time Estimation</th>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+            {% set order=o %}
+            {% set item=order.item %}
+
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.desc }}</td>
+            <td>{{ order.qty }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.time_estimate }}</td>
+          </tr>
+          {% endfor %}
+
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <th>Total: ${{ total_cost }}</th>
+            <th>Total: {{ total_time }} seconds</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <form>
+      <div class="form-row">
+        <div class="col-auto">
+            <label for="comments">Order Comments (optional)</label>
+            <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+        </div>
+      </div>
+    </form>
+
+    <div id="paypal-button-container"></div>
+
+  <!-- <a href="{{ url_for( 'user.order_payment', b_id=business.id ) }}" class="btn btn-primary btn--continue" role="button">Continue</a></p></p> -->
+    <a href="{{ url_for( 'user.order_delete', b_id=business.id ) }}" class="btn btn-danger" role="button">Delete Order</a>
+  </div>
+
+  <script>
+  var items = [ ];
+  "{% for o in orders %}"
+    "{% set order=o %}"
+    "{% set item=order.item %}"
+    items.push( {
+      name: "{{ item.name }}",
+      description: "{{ item.desc }}",
+      price: "{{ item.price }}",
+      quantity: "{{ order.qty }}",
+      currency: 'AUD'
+    } );
+  "{% endfor %}"
+  "{% if discount_amt < 0 %}"
+    items.push( {
+      name: "Discount",
+      description: 'Total discount',
+      price: "{{ discount_amt }}",
+      quantity: 1,
+      currency: "AUD"
+    } );
+  "{% endif %}"
+  </script>
+  <script>
+
+    // Render the PayPal button
+
+    paypal.Button.render({
+
+        // Set your environment
+
+        env: 'sandbox', // sandbox | production
+
+        // Specify the style of the button
+
+        style: {
+            layout: 'vertical',  // horizontal | vertical
+            size:   'medium',    // medium | large | responsive
+            shape:  'rect',      // pill | rect
+            color:  'gold'       // gold | blue | silver | black
+        },
+
+        // Specify allowed and disallowed funding sources
+        //
+        // Options:
+        // - paypal.FUNDING.CARD
+        // - paypal.FUNDING.CREDIT
+        // - paypal.FUNDING.ELV
+
+        funding: {
+            allowed: [ paypal.FUNDING.CARD, paypal.FUNDING.CREDIT ],
+            disallowed: [ ]
+        },
+
+        // PayPal Client IDs - replace with your own
+        // Create a PayPal app: https://developer.paypal.com/developer/applications/create
+
+        client: {
+            sandbox:    'AVTPAKHzpqt2-SK3Vn4hbVib2w08W4EMBDJsgPy8VMpTVTteI97ZKQgpvxthxl-N3V7KO3BuywPvnUjL',
+            production: '<insert production client id>'
+        },
+
+        payment: function(data, actions) {
+            return actions.payment.create({
+                payment: {
+                    transactions: [
+                    {
+                        amount: { total: "{{ total_cost }}", currency: 'AUD' },
+                        item_list: 
+                        {
+                            items: items
+                        },
+                    } ],
+                }
+            });
+        },
+
+        onAuthorize: function(data, actions) {
+            return actions.payment.execute().then(function() {
+                // window.alert('Payment Complete, redirecting to' + "{{ url_for( 'user.order_payment', b_id=business.id ) }}!");
+              // window.alert( $( '#comments' ).val( ) ); 
+              pay( );
+            });
+        }
+
+    }, '#paypal-button-container');
+</script>
+  {% endif %}
+{% endblock %}

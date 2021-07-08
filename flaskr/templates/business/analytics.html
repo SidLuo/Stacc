@@ -1,0 +1,94 @@
+{% extends 'base_business.html' %}
+
+{% block content %}
+<div class="container fluid">
+  <h2>Todays Analytics</h2>
+
+<div class="row">
+
+  <div class="col-sm-6">
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Today's Quick Facts</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">View quick analytics on today's performance
+
+          <br>
+          Number of orders: {{count}} 
+          <br>
+          Value per order: ${{val_per}} 
+          <br>
+          <br>
+          <b> Number of each item sold today </b> 
+          <br>
+
+          {% for item in today_num_items %}
+            {{ item_dict[item[0]].name }} = {{item[1]}} <br>
+          {% endfor %}
+
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-sm-6">
+
+    <div class="card">
+      <div class="card-header">
+        <h5>This Weeks Quick Facts</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">View this weeks' performance (including today). <br><br>
+
+        {% for day in week_performance %}
+
+        {{day}} <br>
+
+        {% endfor %}
+
+
+
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+  <p></p>
+  <h3>Today's Accepted/Completed Orders</h3>
+  <table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">ID - digest</th>
+      <th scope="col">Name</th>
+      <th scope="col">Order Items</th>
+      <th scope="col">Total Cost</th>
+      <th scope="col">Order Status</th>
+    </tr>
+  </thead>
+  {% for ord in todayData %}
+  <tr>
+      <th scope="row">{{ord.id}} - {{ord.digest}}</th>
+      <td>{{ord.user_.name}} - ID:{{ord.user}}</td>
+      <td>
+
+      {% for i_id in ord.order_details.split( ',' ) %}
+        {{ item_dict[i_id].name }} <br>
+      {% endfor %}
+
+      </td>
+      <td>{{ord.total}}</td>
+      <td>{{ord.status}}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+  
+
+</div>
+
+{% endblock %}
